@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGN LEADS USA - Real-Time Lead Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Archivo', sans-serif;
+            background: #0a0e1a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(191, 10, 48, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 40, 104, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0e1a 0%, #151922 100%);
+            animation: pulse 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(3rem, 10vw, 7rem);
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #BF0A30 0%, #ff4d6d 50%, #BF0A30 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(191, 10, 48, 0.3);
+            margin-bottom: 10px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 30px 20px;
+            background: rgba(15, 20, 35, 0.6);
+            border-top: 1px solid rgba(191, 10, 48, 0.3);
+            border-bottom: 1px solid rgba(191, 10, 48, 0.3);
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3rem;
+            color: #BF0A30;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .map-section {
+            background: rgba(15, 20, 35, 0.4);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(191, 10, 48, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.8s ease-out 0.9s both;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .map-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .map-header h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .map-header p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .us-map {
+            width: 100%;
+            height: auto;
+        }
+
+        .state {
+            fill: #8b9dc3;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .state:hover {
+            stroke: #BF0A30;
+            stroke-width: 2.5;
+            filter: brightness(1.2);
+        }
+
+        .state.heat-none { fill: #8b9dc3; }
+        .state.heat-low { fill: #7a8db5; }
+        .state.heat-medium { fill: #6a7da7; }
+        .state.heat-high { fill: #5a6d99; }
+        .state.heat-veryhigh { fill: #4a5d8b; }
+        
+        .state.has-page { fill: #BF0A30; }
+        .state.has-page:hover { fill: #d91c49; }
+
+        .state-label {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 15px;
+            fill: #1a1a2e;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+        }
+
+        .state.has-page ~ #labels .state-label[data-state="TX"] {
+            fill: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(15, 20, 35, 0.95);
+            border: 2px solid #BF0A30;
+            border-radius: 10px;
+            padding: 15px 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.active {
+            opacity: 1;
+        }
+
+        .tooltip-state {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem;
+            color: #BF0A30;
+            margin-bottom: 5px;
+        }
+
+        .tooltip-leads {
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .tooltip-status {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #BF0A30;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            animation: modalSlide 0.3s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-content h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: #BF0A30;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #BF0A30, #d91c49);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(191, 10, 48, 0.4);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            border: 2px solid #334155;
+            margin-left: 10px;
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #BF0A30;
+            background: rgba(191, 10, 48, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar {
+                gap: 20px;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .map-section {
+                padding: 20px;
+            }
+
+            .state-label {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <header>
+        <h1>SIGN LEADS USA</h1>
+        <p class="subtitle">Real-Time Commercial Development Intelligence</p>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-value" id="totalLeads">0</div>
+            <div class="stat-label">Total Leads</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="activeStates">0</div>
+            <div class="stat-label">Active States</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="totalRevenue">$0M</div>
+            <div class="stat-label">Est. Revenue</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="map-section">
+            <div class="map-header">
+                <h2>NATIONAL LEAD HEAT MAP</h2>
+                <p>Click any state to view detailed lead information • Red states have full databases available</p>
+            </div>
+
+            <div class="map-container">
+                <svg class="us-map" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg">
+                    <g id="states">
+                        <!-- Alaska -->
+                        <path class="state" data-state="AK" data-name="Alaska" d="M107,527l3-13l4-5l5,2l8,8l4,7l-1,6l-5,3l-6-1l-7-3z M85,532l6-3l7,2l2,6l-2,5l-6,2l-6-2l-3-5z M75,555l-4-9l2-6l6-3l7,1l5,5l1,7l-3,6l-7,2z"/>
+                        
+                        <!-- Hawaii -->
+                        <path class="state" data-state="HI" data-name="Hawaii" d="M250,540l8-2l6,3l2,6l-3,5l-7,2l-6-3l-2-5z M270,545l5-2l4,2l1,4l-2,4l-5,1l-4-2l-1-4z M290,548l4-1l3,2l1,3l-2,3l-4,1l-3-2l-1-3z M310,542l6-2l5,3l2,5l-2,5l-6,2l-5-3l-2-5z"/>
+                        
+                        <!-- Washington -->
+                        <path class="state" data-state="WA" data-name="Washington" d="M58,25l25,2l28,1l20,1l2,12l1,18l2,16l1,10l-8,1l-11,1l-13,0l-15-1l-10-1l-8-2l-5-8l-7-12l-4-10l-2-11l0-8z"/>
+                        
+                        <!-- Oregon -->
+                        <path class="state" data-state="OR" data-name="Oregon" d="M56,83l1-10l2-8l8,2l10,1l15,1l13,0l11-1l8-1l1,8l0,11l-1,13l-2,12l-13,1l-18,0l-15-1l-12-2l-7-12l-4-9z"/>
+                        
+                        <!-- California -->
+                        <path class="state" data-state="CA" data-name="California" d="M57,110l4,9l7,12l12,2l15,1l18,0l13-1l0,15l-2,22l-3,25l-4,22l-5,18l-8,14l-10,8l-12,5l-13,2l-12-2l-10-6l-7-10l-5-12l-3-13l-2-15l0-17l1-18l2-18l3-17l4-15z"/>
+                        
+                        <!-- Nevada -->
+                        <path class="state" data-state="NV" data-name="Nevada" d="M122,109l13-1l2,15l3,22l4,25l3,18l2,12l-8,1l-12,1l-10,0l-8-1l5-18l4-22l3-25l2-22z"/>
+                        
+                        <!-- Idaho -->
+                        <path class="state" data-state="ID" data-name="Idaho" d="M135,25l18,0l16,1l12,2l-2,11l-3,15l-5,18l-6,17l-8,15l-9,12l-10,8l-8,4l-1-8l0-11l1-13l2-12l-13,1l-2-15l8-1l11-1l13,0l15,1l10,1l8,2l-1-10l-2-16l-1-18z"/>
+                        
+                        <!-- Montana -->
+                        <path class="state" data-state="MT" data-name="Montana" d="M181,26l36,2l38,1l35,0l1,14l0,18l-1,16l-2,12l-15,0l-18-1l-17-1l-16-2l-13-2l-10-4l-6-6l10-8l9-12l8-15l6-17z"/>
+                        
+                        <!-- Wyoming -->
+                        <path class="state" data-state="WY" data-name="Wyoming" d="M184,89l13,2l16,2l17,1l18,1l15,0l-1,14l-2,18l-2,17l-3,15l-19,0l-22-1l-20-2l-18-3l9-12l8-15l6-17l5-18z"/>
+                        
+                        <!-- Utah -->
+                        <path class="state" data-state="UT" data-name="Utah" d="M161,154l18,3l20,2l22,1l19,0l-2,15l-3,18l-3,17l-4,15l-16,1l-18,0l-16-1l-14-2l-2-12l-3-18l-4-25l-3-22z"/>
+                        
+                        <!-- Arizona -->
+                        <path class="state" data-state="AZ" data-name="Arizona" d="M125,203l8,1l10,0l12-1l8-1l14,2l16,1l18,0l16-1l-3,16l-5,20l-6,21l-7,18l-18,0l-20-1l-18-2l-15-4l7-10l5-12l3-13l2-15l0-17z"/>
+                        
+                        <!-- New Mexico -->
+                        <path class="state" data-state="NM" data-name="New Mexico" d="M216,220l4-15l3-17l3-18l2-15l19,0l22,1l20,2l18,3l-2,18l-3,22l-4,24l-5,22l-21,0l-23-1l-22-2l-20-3l7-18l6-21l5-20z"/>
+                        
+                        <!-- Colorado -->
+                        <path class="state" data-state="CO" data-name="Colorado" d="M237,155l3-15l2-17l2-18l1-14l20,0l24,1l23,1l22,2l-2,16l-3,20l-4,22l-5,20l-22-2l-23-1l-21,0l-20-1l5-22l4-24l3-22z"/>
+                        
+                        <!-- North Dakota -->
+                        <path class="state" data-state="ND" data-name="North Dakota" d="M325,29l35,1l38,0l36-1l1,16l0,19l-1,17l-2,13l-18,0l-20-1l-19-1l-18-2l-15-3l-12-5l-8-8l2-12l1-16l0-18z"/>
+                        
+                        <!-- South Dakota -->
+                        <path class="state" data-state="SD" data-name="South Dakota" d="M325,93l12,5l15,3l18,2l19,1l20,1l18,0l-1,15l-2,18l-2,17l-3,14l-20,0l-23-1l-22-2l-20-3l-16-4l-12-6l3-14l2-17l1-16z"/>
+                        
+                        <!-- Nebraska -->
+                        <path class="state" data-state="NE" data-name="Nebraska" d="M324,148l12,6l16,4l20,3l22,2l23,1l20,0l-2,16l-3,19l-3,18l-4,15l-23,0l-26-1l-24-2l-22-3l5-20l4-22l3-20z"/>
+                        
+                        <!-- Kansas -->
+                        <path class="state" data-state="KS" data-name="Kansas" d="M324,216l22,3l24,2l26,1l23,0l-3,16l-4,20l-5,21l-5,18l-25,0l-27-1l-26-2l-24-3l5-18l5-21l4-20z"/>
+                        
+                        <!-- Oklahoma -->
+                        <path class="state" data-state="OK" data-name="Oklahoma" d="M324,291l24,3l26,2l27,1l25,0l-4,17l-5,19l-6,18l-6,14l-27,0l-28-1l-27-2l-25-3l6-14l6-18l5-19z"/>
+                        
+                        <!-- Texas -->
+                        <path class="state has-page" data-state="TX" data-name="Texas" d="M324,362l25,3l27,2l28,1l27,0l-4,18l-6,22l-7,24l-8,23l-9,20l-10,17l-12,13l-14,10l-16,6l-17,3l-16,0l-15-3l-13-6l-11-9l-9-11l-7-13l-5-14l-3-15l-1-16l1-17l3-17l5-16l6-15l8-13l10-11l12-8l14-5l15-2l16,1l6,14l6,18l5,19l4,17z"/>
+                        
+                        <!-- Minnesota -->
+                        <path class="state" data-state="MN" data-name="Minnesota" d="M435,24l37,0l35,1l2,18l1,21l0,20l-2,17l-18,1l-20,0l-19-1l-18-2l-15-3l-13-5l-10-8l8,8l2-13l1-17l0-19l-1-16z"/>
+                        
+                        <!-- Iowa -->
+                        <path class="state" data-state="IA" data-name="Iowa" d="M406,105l13,5l15,3l18,2l19,1l20,0l18-1l-2,16l-3,20l-4,21l-4,18l-21,0l-24-1l-23-2l-22-3l-20-4l3-14l2-17l2-18l1-15z"/>
+                        
+                        <!-- Missouri -->
+                        <path class="state" data-state="MO" data-name="Missouri" d="M406,184l20,4l22,3l23,2l24,1l21,0l-4,17l-5,21l-6,22l-6,19l-23,0l-25-1l-24-2l-23-3l-21-4l5-18l5-21l4-20l3-16z"/>
+                        
+                        <!-- Arkansas -->
+                        <path class="state" data-state="AR" data-name="Arkansas" d="M406,289l21,4l23,3l24,2l25,1l23,0l-5,18l-6,21l-7,22l-7,19l-24,0l-26-1l-25-2l-24-3l6-19l7-22l6-21z"/>
+                        
+                        <!-- Louisiana -->
+                        <path class="state" data-state="LA" data-name="Louisiana" d="M406,373l24,3l25,2l26,1l24,0l-6,18l-7,21l-8,19l-9,16l-25,0l-26-1l-25-2l-23-4l9-16l8-19l7-21z"/>
+                        
+                        <!-- Wisconsin -->
+                        <path class="state" data-state="WI" data-name="Wisconsin" d="M509,42l18,1l20,1l19,2l2,20l1,22l-1,20l-3,17l-19,0l-21-1l-20-2l-18-3l-15-4l2-17l0-20l-1-21l-2-18l18,1l20,0z"/>
+                        
+                        <!-- Illinois -->
+                        <path class="state" data-state="IL" data-name="Illinois" d="M509,124l15,4l18,3l20,2l21,1l19,0l-3,18l-4,22l-5,23l-6,21l-21,0l-23-1l-22-2l-21-4l-19-5l6-19l6-22l5-21l4-17z"/>
+                        
+                        <!-- Mississippi -->
+                        <path class="state" data-state="MS" data-name="Mississippi" d="M509,293l19,5l21,4l22,2l23,1l21,0l-5,19l-6,22l-7,23l-8,20l-22,0l-24-1l-23-2l-22-4l7-20l7-23l6-22z"/>
+                        
+                        <!-- Michigan -->
+                        <path class="state" data-state="MI" data-name="Michigan" d="M568,66l19,2l21,1l20,1l2,21l0,23l-2,21l-3,18l-5,14l-20,0l-22-1l-21-2l-19-3l3-17l1-20l-1-22l-2-20l19,0l21,1l20,2z M593,24l15,1l14,2l2,12l0,13l-2,11l-14,0l-15-1l-14-2l2-11l0-13z"/>
+                        
+                        <!-- Indiana -->
+                        <path class="state" data-state="IN" data-name="Indiana" d="M568,167l20,3l22,2l21,1l20,0l-4,17l-5,21l-6,22l-7,20l-21,0l-23-1l-22-2l-21-4l6-21l5-23l4-22z"/>
+                        
+                        <!-- Ohio -->
+                        <path class="state" data-state="OH" data-name="Ohio" d="M631,173l21,2l23,1l22,0l-4,18l-5,21l-6,23l-7,21l-23,0l-24-1l-23-2l-22-3l7-20l6-22l5-21z"/>
+                        
+                        <!-- Kentucky -->
+                        <path class="state" data-state="KY" data-name="Kentucky" d="M563,250l21,4l22,2l23,1l21,0l23,0l24,1l23,2l-6,19l-7,22l-8,22l-8,19l-24,0l-25-1l-24-2l-23-3l-22-4l8-19l7-22l6-22z"/>
+                        
+                        <!-- Tennessee -->
+                        <path class="state" data-state="TN" data-name="Tennessee" d="M509,334l22,4l23,3l24,2l25,1l24,0l25,0l26,1l25,2l-7,18l-8,21l-9,21l-10,18l-26,0l-27-1l-26-2l-25-3l8-18l9-21l8-21z"/>
+                        
+                        <!-- Alabama -->
+                        <path class="state" data-state="AL" data-name="Alabama" d="M587,384l22,4l23,2l24,1l23,0l-8,19l-9,22l-10,22l-11,19l-24,0l-25-1l-24-2l-23-4l11-19l10-22l9-22z"/>
+                        
+                        <!-- Georgia -->
+                        <path class="state" data-state="GA" data-name="Georgia" d="M631,336l26,0l27,1l26,2l25,3l-8,20l-10,23l-11,24l-12,21l-26,0l-28-1l-27-2l-26-3l12-21l11-24l10-23z"/>
+                        
+                        <!-- Florida -->
+                        <path class="state" data-state="FL" data-name="Florida" d="M657,427l26,3l27,2l28,1l26,0l-9,20l-11,22l-12,21l-14,18l-15,14l-17,10l-18,6l-19,2l-18-2l-16-6l-14-10l-12-13l-10-16l14-18l12-21l11-22z"/>
+                        
+                        <!-- South Carolina -->
+                        <path class="state" data-state="SC" data-name="South Carolina" d="M684,365l25,2l26,1l25,0l-9,19l-10,21l-11,21l-12,18l-25,0l-26-1l-25-2l-24-3l12-18l11-21l10-21z"/>
+                        
+                        <!-- North Carolina -->
+                        <path class="state" data-state="NC" data-name="North Carolina" d="M694,257l27,3l28,2l27,1l26,0l-8,20l-10,23l-11,24l-12,22l-26,0l-27-1l-26-2l-25-3l12-22l11-24l10-23z"/>
+                        
+                        <!-- Virginia -->
+                        <path class="state" data-state="VA" data-name="Virginia" d="M697,236l26,1l28,1l27,0l-7,19l-8,21l-10,23l-11,23l-26,0l-27-1l-28-2l-27-3l11-23l10-23l8-21z"/>
+                        
+                        <!-- West Virginia -->
+                        <path class="state" data-state="WV" data-name="West Virginia" d="M671,257l23,0l24,1l23,2l-6,19l-7,22l-8,22l-8,19l-23,0l-24-1l-23-2l8-19l8-22l7-22z"/>
+                        
+                        <!-- Pennsylvania -->
+                        <path class="state" data-state="PA" data-name="Pennsylvania" d="M694,173l24,1l26,1l26,0l-6,19l-7,22l-8,22l-9,21l-27,0l-28-1l-26-1l9-21l8-22l7-22z"/>
+                        
+                        <!-- New York -->
+                        <path class="state" data-state="NY" data-name="New York" d="M694,66l26,2l28,2l27,1l26,1l-5,20l-6,23l-7,23l-8,21l-26,0l-26-1l-24-1l8-21l7-23l6-23z"/>
+                        
+                        <!-- Vermont -->
+                        <path class="state" data-state="VT" data-name="Vermont" d="M801,69l13,1l12,0l-3,16l-4,18l-4,17l-12,0l-13-1l4-17l4-18z"/>
+                        
+                        <!-- New Hampshire -->
+                        <path class="state" data-state="NH" data-name="New Hampshire" d="M826,70l14,0l13,1l-3,17l-4,19l-5,18l-13,0l-14-1l5-18l4-19z"/>
+                        
+                        <!-- Maine -->
+                        <path class="state" data-state="ME" data-name="Maine" d="M853,24l18,1l17,2l-2,18l-3,21l-4,22l-5,21l-6,18l-17,0l-18-1l6-18l5-21l4-22l3-21z"/>
+                        
+                        <!-- Massachusetts -->
+                        <path class="state" data-state="MA" data-name="Massachusetts" d="M801,125l13,1l14,0l14,1l13,1l-4,13l-4,12l-13,0l-14-1l-14,0l-13-1l4-12z"/>
+                        
+                        <!-- Rhode Island -->
+                        <path class="state" data-state="RI" data-name="Rhode Island" d="M855,126l8,0l8,1l-2,8l-2,8l-8,0l-8-1l2-8z"/>
+                        
+                        <!-- Connecticut -->
+                        <path class="state" data-state="CT" data-name="Connecticut" d="M815,139l14,1l14,0l13,1l-3,11l-4,11l-13,0l-14-1l-14,0l4-11z"/>
+                        
+                        <!-- New Jersey -->
+                        <path class="state" data-state="NJ" data-name="New Jersey" d="M770,174l12,1l13,0l-4,16l-5,18l-5,17l-13,0l-12-1l5-17l5-18z"/>
+                        
+                        <!-- Delaware -->
+                        <path class="state" data-state="DE" data-name="Delaware" d="M778,225l8,0l8,1l-3,12l-3,11l-8,0l-8-1l3-11z"/>
+                        
+                        <!-- Maryland -->
+                        <path class="state" data-state="MD" data-name="Maryland" d="M752,237l26,0l28,1l-6,16l-6,17l-7,16l-28,0l-27-1l7-16l6-17z"/>
+                    </g>
+
+                    <g id="labels"></g>
+                </svg>
+
+                <div class="tooltip" id="tooltip">
+                    <div class="tooltip-state"></div>
+                    <div class="tooltip-leads"></div>
+                    <div class="tooltip-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="accessModal">
+        <div class="modal-content">
+            <h3>🔒 PREMIUM ACCESS REQUIRED</h3>
+            <p id="modalMessage">Upgrade to access detailed lead information for <strong id="modalState"></strong></p>
+            <button class="modal-btn" onclick="closeModal()">Close</button>
+            <button class="modal-btn secondary" onclick="alert('Registration system coming soon!')">Register Now</button>
+        </div>
+    </div>
+
+    <script>
+        const stateData = {
+            'TX': { name: 'Texas', leads: 250, hasPage: true, url: 'texas-sign-leads.html' },
+            'CA': { name: 'California', leads: 0, hasPage: false },
+            'FL': { name: 'Florida', leads: 0, hasPage: false },
+            'NY': { name: 'New York', leads: 0, hasPage: false },
+        };
+
+        const allStates = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+        
+        allStates.forEach(state => {
+            if (!stateData[state]) {
+                stateData[state] = { name: state, leads: 0, hasPage: false };
+            }
+        });
+
+        // State label positions (center coordinates for each state)
+        const stateLabelPositions = {
+            'AL': {x: 679, y: 425}, 'AK': {x: 96, y: 540}, 'AZ': {x: 158, y: 280}, 'AR': {x: 481, y: 340},
+            'CA': {x: 98, y: 230}, 'CO': {x: 291, y: 230}, 'CT': {x: 849, y: 149}, 'DE': {x: 789, y: 237},
+            'FL': {x: 755, y: 485}, 'GA': {x: 713, y: 395}, 'HI': {x: 290, y: 545}, 'ID': {x: 187, y: 100},
+            'IL': {x: 579, y: 210}, 'IN': {x: 625, y: 225}, 'IA': {x: 476, y: 175}, 'KS': {x: 408, y: 255},
+            'KY': {x: 661, y: 295}, 'LA': {x: 481, y: 410}, 'ME': {x: 881, y: 85}, 'MD': {x: 793, y: 260},
+            'MA': {x: 842, y: 135}, 'MI': {x: 641, y: 130}, 'MN': {x: 482, y: 95}, 'MS': {x: 579, y: 355},
+            'MO': {x: 491, y: 235}, 'MT': {x: 253, y: 60}, 'NE': {x: 408, y: 190}, 'NV': {x: 147, y: 170},
+            'NH': {x: 846, y: 100}, 'NJ': {x: 783, y: 200}, 'NM': {x: 291, y: 295}, 'NY': {x: 765, y: 120},
+            'NC': {x: 757, y: 315}, 'ND': {x: 380, y: 63}, 'OH': {x: 675, y: 220}, 'OK': {x: 408, y: 325},
+            'OR': {x: 108, y: 103}, 'PA': {x: 745, y: 210}, 'RI': {x: 863, y: 135}, 'SC': {x: 736, y: 385},
+            'SD': {x: 380, y: 130}, 'TN': {x: 632, y: 360}, 'TX': {x: 408, y: 430}, 'UT': {x: 214, y: 205},
+            'VT': {x: 820, y: 95}, 'VA': {x: 757, y: 280}, 'WA': {x: 108, y: 50}, 'WV': {x: 715, y: 270},
+            'WI': {x: 545, y: 95}, 'WY': {x: 253, y: 125}
+        };
+
+        function loadLeadCounts() {
+            const stored = localStorage.getItem('stateLeadCounts');
+            if (stored) {
+                const counts = JSON.parse(stored);
+                Object.keys(counts).forEach(state => {
+                    if (stateData[state]) {
+                        stateData[state].leads = counts[state];
+                    }
+                });
+            }
+        }
+
+        function saveLeadCounts() {
+            const counts = {};
+            Object.keys(stateData).forEach(state => {
+                counts[state] = stateData[state].leads;
+            });
+            localStorage.setItem('stateLeadCounts', JSON.stringify(counts));
+        }
+
+        function createStateLabels() {
+            const labelsGroup = document.getElementById('labels');
+            labelsGroup.innerHTML = '';
+
+            document.querySelectorAll('.state').forEach(element => {
+                const stateCode = element.dataset.state;
+                const data = stateData[stateCode];
+                const pos = stateLabelPositions[stateCode];
+                
+                if (data && data.leads > 0 && pos) {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', pos.x);
+                    text.setAttribute('y', pos.y);
+                    text.setAttribute('class', 'state-label');
+                    text.setAttribute('data-state', stateCode);
+                    text.textContent = data.leads.toLocaleString();
+                    labelsGroup.appendChild(text);
+                }
+            });
+        }
+
+        function updateMapColors() {
+            document.querySelectorAll('.state').forEach(element => {
+                const stateCode = element.dataset.state;
+                const data = stateData[stateCode];
+                
+                if (!data) return;
+
+                element.classList.remove('heat-none', 'heat-low', 'heat-medium', 'heat-high', 'heat-veryhigh', 'has-page');
+
+                if (data.hasPage) {
+                    element.classList.add('has-page');
+                } else if (data.leads === 0) {
+                    element.classList.add('heat-none');
+                } else if (data.leads < 10) {
+                    element.classList.add('heat-low');
+                } else if (data.leads < 50) {
+                    element.classList.add('heat-medium');
+                } else if (data.leads < 100) {
+                    element.classList.add('heat-high');
+                } else {
+                    element.classList.add('heat-veryhigh');
+                }
+            });
+        }
+
+        function updateStats() {
+            let totalLeads = 0;
+            let activeStates = 0;
+            let totalRevenue = 0;
+
+            Object.values(stateData).forEach(data => {
+                totalLeads += data.leads;
+                if (data.leads > 0) activeStates++;
+                totalRevenue += data.leads * 3.5;
+            });
+
+            document.getElementById('totalLeads').textContent = totalLeads.toLocaleString();
+            document.getElementById('activeStates').textContent = activeStates;
+            document.getElementById('totalRevenue').textContent = '$' + (totalRevenue / 1000).toFixed(1) + 'M';
+        }
+
+        const tooltip = document.getElementById('tooltip');
+        
+        document.querySelectorAll('.state').forEach(element => {
+            element.addEventListener('mouseenter', (e) => {
+                const stateCode = element.dataset.state;
+                const stateName = element.dataset.name;
+                const data = stateData[stateCode];
+
+                tooltip.querySelector('.tooltip-state').textContent = stateName;
+                tooltip.querySelector('.tooltip-leads').textContent = `${data.leads.toLocaleString()} Leads Available`;
+                tooltip.querySelector('.tooltip-status').textContent = data.hasPage ? '✓ Full Database Accessible' : '';
+                
+                tooltip.classList.add('active');
+            });
+
+            element.addEventListener('mousemove', (e) => {
+                tooltip.style.left = e.pageX + 15 + 'px';
+                tooltip.style.top = e.pageY + 15 + 'px';
+            });
+
+            element.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('active');
+            });
+
+            element.addEventListener('click', () => {
+                const stateCode = element.dataset.state;
+                const data = stateData[stateCode];
+
+                if (data.hasPage) {
+                    window.location.href = data.url;
+                } else {
+                    showAccessModal(data.name, data.leads);
+                }
+            });
+        });
+
+        function showAccessModal(stateName, leadCount) {
+            const modal = document.getElementById('accessModal');
+            document.getElementById('modalState').textContent = stateName;
+            
+            if (leadCount > 0) {
+                document.getElementById('modalMessage').innerHTML = 
+                    `Upgrade to access <strong>${leadCount} detailed leads</strong> for ${stateName}`;
+            } else {
+                document.getElementById('modalMessage').innerHTML = 
+                    `${stateName} lead database is currently being compiled. Check back soon!`;
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('accessModal').classList.remove('active');
+        }
+
+        document.getElementById('accessModal').addEventListener('click', (e) => {
+            if (e.target.id === 'accessModal') {
+                closeModal();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            loadLeadCounts();
+            updateMapColors();
+            updateStats();
+            createStateLabels();
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'stateLeadCounts') {
+                loadLeadCounts();
+                updateMapColors();
+                updateStats();
+                createStateLabels();
+            }
+        });
+
+        window.updateStateLeadCount = function(stateCode, count) {
+            if (stateData[stateCode]) {
+                stateData[stateCode].leads = count;
+                saveLeadCounts();
+                updateMapColors();
+                updateStats();
+                createStateLabels();
+            }
+        };
+    </script>
+</body>
+</html>

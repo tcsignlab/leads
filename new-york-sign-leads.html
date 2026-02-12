@@ -183,13 +183,7 @@
     </div>
 
     <script>
-        const STATE_PAGES = {
-            'FL': 'hot-leads.html',
-            'CA': 'california-sign-leads.html',
-            'NY': 'new-york-sign-leads.html'
-        };
-
-        // COMPLETE DATABASE OF ALL 220+ NEW YORK LEADS
+           // COMPLETE DATABASE OF ALL 220+ NEW YORK LEADS
         const allLeads = [
             // MANHATTAN (55 LEADS)
             {county: 'manhattan', temp: 'hot', name: 'The Golden Steer NYC', subtitle: 'Greenwich Village Vegas Steakhouse', location: '1 Fifth Avenue (former Otto/One Fifth)', contact: 'Golden Steer Las Vegas', phone: '(702) 555-0100', opening: 'Jan 2026', signage: ['Classic Vegas-style signage', 'Tableside service branding', 'Prime steak graphics', 'Rat Pack imagery'], revenue: '$55K - $82K'},
@@ -490,6 +484,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // 4. Change state programmatically:
 //    updateMapSync({ stateAbbr: 'FL', stateName: 'Florida', leads: 120 });
 // ─────────────────────────────────────────────────────────────────
-</script>
+</script><script>  const STATE_PAGES = {
+            'NY': 'new-york-sign-leads.html',
+        };</script>
 </body>
 </html>

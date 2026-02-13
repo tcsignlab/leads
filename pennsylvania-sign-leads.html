@@ -183,13 +183,6 @@
     </div>
 
     <script>
-        const STATE_PAGES = {
-            'FL': 'hot-leads.html',
-            'CA': 'california-sign-leads.html',
-            'NY': 'new-york-sign-leads.html',
-            'WY': 'wyoming-sign-leads.html',
-            'PA': 'pennsylvania-sign-leads.html'
-        };
 
         // COMPLETE DATABASE OF ALL 200+ PENNSYLVANIA LEADS
         const allLeads = [
@@ -428,6 +421,145 @@
                   `• Show project timeline\n` +
                   `• Set follow-up reminders`);
         }
-    </script>
+    </script><!-- Map Sync Badge (optional — shows live sync status to user) -->
+<div id="mapsync-badge" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(10,12,16,0.95);
+  border: 1px solid #1e2330;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+  color: #a0aec0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+" onclick="window.location.href='us-map-dashboard.html'" title="Return to National Map">
+  <span style="width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;animation:syncpulse 2s infinite;flex-shrink:0;"></span>
+  <span>Synced to National Map</span>
+  <span style="color:#4a90e2;font-weight:700;">↗ View Map</span>
+</div>
+
+<style>
+@keyframes syncpulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+  50%      { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+}
+</style>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  SIGN LEADS MAP SYNC — Configuration                        ║
+// ║  Edit these values for each state page                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const MAPSYNC_CONFIG = {
+  // Your state's 2-letter abbreviation (REQUIRED)
+  stateAbbr: 'PA',
+
+  // Human-readable state name
+  stateName: 'Pennsylvania',
+
+  // Lead counts — update these to match your actual data
+  // You can also call updateMapSync({ leads: allLeads.length })
+  // dynamically after filtering/loading
+  leads: 250,        // Total lead count
+  hot:   180,        // Hot leads count
+  warm:  70,         // Warm leads count
+
+  // Estimated revenue range (string, shown in tooltip)
+  revenue: '$18.4M',
+
+  // Path back to the main map (update if files are in different folders)
+  mapPath: 'us-map-dashboard.html',
+};
+
+// ─────────────────────────────────────────────────────────────────
+// DO NOT EDIT BELOW THIS LINE
+// ─────────────────────────────────────────────────────────────────
+const _SYNC_KEY = 'signleads_state_data';
+
+function updateMapSync(overrides) {
+  try {
+    const config = Object.assign({}, MAPSYNC_CONFIG, overrides || {});
+    const existing = JSON.parse(localStorage.getItem(_SYNC_KEY) || '{}');
+    existing[config.stateAbbr] = {
+      leads:    config.leads,
+      hot:      config.hot,
+      warm:     config.warm,
+      revenue:  config.revenue,
+      stateName:config.stateName,
+      updated:  new Date().toISOString(),
+    };
+    localStorage.setItem(_SYNC_KEY, JSON.stringify(existing));
+
+    // Update badge
+    const badge = document.getElementById('mapsync-badge');
+    if (badge) {
+      badge.querySelector('span:nth-child(2)').textContent =
+        config.leads + ' leads synced';
+    }
+  } catch(e) {
+    console.warn('[MapSync] Could not write to localStorage:', e);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUTO-COUNT INTEGRATION
+// If your page has a lead count element, MapSync will watch it
+// and auto-update when the count changes (e.g. after filtering)
+// ─────────────────────────────────────────────────────────────────
+function _autoWatchLeadCount() {
+  // Works with the default texas-sign-leads.html structure
+  // where document.getElementById('leadCount') holds the count
+  const countEl = document.getElementById('leadCount');
+  if (!countEl) return;
+
+  const observer = new MutationObserver(() => {
+    const count = parseInt(countEl.textContent, 10);
+    if (!isNaN(count)) {
+      // Only sync the filtered count if it's a meaningful view
+      // (don't sync "3 results" from a search — sync total only)
+      // Remove this block if you want to always sync displayed count:
+      // updateMapSync({ leads: count });
+    }
+  });
+  observer.observe(countEl, { childList: true, subtree: true });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Push initial data to map
+  updateMapSync();
+  // Start watching for count changes
+  _autoWatchLeadCount();
+});
+
+// ─────────────────────────────────────────────────────────────────
+// USAGE EXAMPLES:
+//
+// 1. Basic (runs automatically on load — just set config above)
+//
+// 2. Update dynamically when leads load:
+//    updateMapSync({ leads: allLeads.length, hot: hotLeads.length });
+//
+// 3. Update after filter changes:
+//    // (in your filterLeads function, after displayLeads(filtered))
+//    // updateMapSync({ leads: allLeads.length }); // always use TOTAL
+//
+// 4. Change state programmatically:
+//    updateMapSync({ stateAbbr: 'FL', stateName: 'Florida', leads: 120 });
+// ─────────────────────────────────────────────────────────────────
+</script><script>       const STATE_PAGES = {
+            'PA': 'pennsylvania-sign-leads.html'
+        };</script>
+
 </body>
 </html>
